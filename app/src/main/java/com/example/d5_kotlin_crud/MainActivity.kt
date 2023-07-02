@@ -20,6 +20,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: StudentViewModel
     private lateinit var studentRecyclerView: RecyclerView
     private lateinit var adapter: StudentRecyclerViewAdapter
+    private var isListItemClicked = false
+
+    private lateinit var selectedStudent: Student
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,11 +41,21 @@ class MainActivity : AppCompatActivity() {
         initRecyclerView()
 
         btnSave.setOnClickListener{
-            saveStudentData()
-            clearInput()
+            if(isListItemClicked){
+                updateStudentData()
+                clearInput()
+            }else{
+                saveStudentData()
+                clearInput()
+            }
         }
         btnClear.setOnClickListener{
-            clearInput()
+            if (isListItemClicked){
+                deleteStudentData()
+                clearInput()
+            }else{
+                clearInput()
+            }
         }
     }
 
@@ -59,6 +72,32 @@ class MainActivity : AppCompatActivity() {
                 etEmail.text.toString()
             )
         )
+    }
+
+    private fun updateStudentData(){
+        viewModel.updateStudent(
+            Student(
+                selectedStudent.id,
+                etName.text.toString(),
+                etEmail.text.toString()
+            )
+        )
+        btnSave.text = "Save"
+        btnClear.text = "Clear"
+        isListItemClicked = false
+    }
+
+    private fun deleteStudentData(){
+        viewModel.deleteStudent(
+            Student(
+                selectedStudent.id,
+                etName.text.toString(),
+                etEmail.text.toString()
+            )
+        )
+        btnSave.text = "Save"
+        btnClear.text = "Clear"
+        isListItemClicked = false
     }
 
     private fun clearInput(){
@@ -84,7 +123,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun listItemClicked(student: Student){
-        Toast.makeText(this, "name: ${student.name}", Toast.LENGTH_LONG).show()
-
+//        Toast.makeText(this, "name: ${student.name}", Toast.LENGTH_LONG).show()
+        selectedStudent = student
+        btnSave.text = "Update"
+        btnClear.text = "Delete"
+        isListItemClicked = true
+        etName.setText(selectedStudent.name)
+        etEmail.setText(selectedStudent.email)
     }
 }
